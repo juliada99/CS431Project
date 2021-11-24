@@ -137,6 +137,7 @@ for index, row in recovered_dates.iterrows():
     temp = row.tolist()
     # calculate differences 
     temp_rec = [t - s for s, t in zip(temp, temp[1:])]
+    temp_rec = [0 if x < 0 else x for x in temp_rec]
     # insert the data from the first recorded day
     temp_rec.insert(0, temp[0])
     # append to the country list
