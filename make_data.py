@@ -4,7 +4,8 @@ confirmed = pandas.read_csv('time_series_covid19_confirmed_global.csv')
 deaths = pandas.read_csv('time_series_covid19_deaths_global.csv')
 recovered = pandas.read_csv('time_series_covid19_recovered_global.csv')
 
-
+n_days = None
+n_countries = None
 """
 Rearrange the Canada entries
 """
@@ -19,13 +20,13 @@ total_confirmed = confirmed.loc[confirmed_idx].drop(columns=["Province/State","C
 canada_confirmed_line = pandas.DataFrame(total_confirmed)
 
 # create a new confirmed array where you drop all canada entries except one
-confirmed_copy = confirmed.drop((confirmed.index[confirmed["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
-
+confirmed_new = confirmed.drop((confirmed.index[confirmed["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
+print(confirmed_new)
 # find the index of the only canada entry
-canada_conf_idx = int(confirmed_copy.index[confirmed_copy["Country/Region"]=="Canada"].to_numpy())
+canada_conf_idx = int(confirmed_new.index[confirmed_new["Country/Region"]=="Canada"].to_numpy())
 
 # drop the columns that does not hold data
-confirmed_copy = confirmed_copy.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
+confirmed_copy = confirmed_new.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
 # replace canada row with Canada sum
 total_confirmed = pandas.concat([confirmed_copy.iloc[:canada_conf_idx], canada_confirmed_line.transpose(), confirmed_copy.iloc[canada_conf_idx+1:]]).reset_index()
 total_confirmed = total_confirmed.drop(columns=['index'], axis=1)
@@ -37,10 +38,10 @@ total_confirmed = total_confirmed.drop(columns=['index'], axis=1)
 total_deaths = deaths.loc[deaths_idx].drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1).sum()
 canada_deaths_line = pandas.DataFrame(total_deaths)
 
-deaths_copy = deaths.drop((deaths.index[deaths["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
-canada_deaths_idx = int(deaths_copy.index[deaths_copy["Country/Region"]=="Canada"].to_numpy())
+deaths_new = deaths.drop((deaths.index[deaths["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
+canada_deaths_idx = int(deaths_new.index[deaths_new["Country/Region"]=="Canada"].to_numpy())
 
-deaths_copy = deaths_copy.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
+deaths_copy = deaths_new.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
 total_deaths = pandas.concat([deaths_copy.iloc[:canada_deaths_idx], canada_deaths_line.transpose(), deaths_copy.iloc[canada_deaths_idx+1:]]).reset_index()
 total_deaths = total_deaths.drop(columns=['index'], axis=1)
 
@@ -48,31 +49,34 @@ total_deaths = total_deaths.drop(columns=['index'], axis=1)
 days = []
 months = []
 year = []
-for col in confirmed.columns[4:]:
+for col in confirmed_new.columns[4:]:
     date = col.split('/')
     days.append(int(date[1]))
     months.append(int(date[0]))
     year.append(int(date[2]))
 
-Country = confirmed["Country/Region"].tolist()
-Lat = confirmed["Lat"].tolist()
-Long = confirmed["Long"].tolist()
+Country = confirmed_new["Country/Region"].tolist()
+Lat = confirmed_new["Lat"].tolist()
+Long = confirmed_new["Long"].tolist()
 
-Country1 = deaths["Country/Region"].tolist()
-Lat1 = deaths["Lat"].tolist()
-Long1 = deaths["Long"].tolist()
+Country1 = deaths_new["Country/Region"].tolist()
+Lat1 = deaths_new["Lat"].tolist()
+Long1 = deaths_new["Long"].tolist()
 
 Country2 = recovered["Country/Region"].tolist()
 Lat2 = recovered["Lat"].tolist()
 Long2 = recovered["Long"].tolist()
 
-Country = [ele for ele in Country for i in range(662)]
-Lat = [ele for ele in Lat for i in range(662)]
-Long = [ele for ele in Long for i in range(662)]
+n_days = len(recovered.columns[4:])
+n_countries = len(recovered)
 
-days = np.tile(days, 280)
-months = np.tile(months, 280)
-year = np.tile(year, 280)
+Country = [ele for ele in Country for i in range(n_days)]
+Lat = [ele for ele in Lat for i in range(n_days)]
+Long = [ele for ele in Long for i in range(n_days)]
+
+days = np.tile(days, n_countries)
+months = np.tile(months, n_countries)
+year = np.tile(year, n_countries)
 
 confirmed_dates = confirmed.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
 deaths_dates = deaths.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
@@ -147,7 +151,7 @@ print("Length of confirmed: ", len(confirmed_each_day_by_country))
 print("Length of deaths: ", len(deaths_each_day_by_country))
 print("Length of recovered: ", len(recovered_each_day_by_country))
 
-col_names = ["Country/Region", "Lat", "Long", "Day", "Month", "Year", "Confirmed", "Deaths"]
+col_names = ["Country/Region", "Lat", "Long", "Day", "Month", "Year", "Confirmed", "Deaths", "Recovered"]
 data = np.column_stack((Country,Lat,Long,days,months,year, confirmed_each_day_by_country, deaths_each_day_by_country, recovered_each_day_by_country))
 data = pandas.DataFrame(data, columns = col_names)
 
