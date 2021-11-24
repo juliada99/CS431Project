@@ -94,6 +94,8 @@ for index, row in total_confirmed.iterrows():
     temp = row.tolist()
     # calculate differences 
     temp_con = [t - s for s, t in zip(temp, temp[1:])]
+    # set negative values to zero
+    temp_con = [0 if x < 0 else x for x in temp_con]
     # insert the data from the first recorded day
     temp_con.insert(0, temp[0])
     # append to the country list
@@ -114,6 +116,8 @@ for index, row in total_deaths.iterrows():
     temp = row.tolist()
     # calculate differences 
     temp_deaths = [t - s for s, t in zip(temp, temp[1:])]
+    # set negative values to zero
+    temp_deaths = [0 if x < 0 else x for x in temp_deaths]
     # insert the data from the first recorded day
     temp_deaths.insert(0, temp[0])
     # append to the country list
@@ -137,6 +141,7 @@ for index, row in recovered_dates.iterrows():
     temp = row.tolist()
     # calculate differences 
     temp_rec = [t - s for s, t in zip(temp, temp[1:])]
+    # set negative values to zero
     temp_rec = [0 if x < 0 else x for x in temp_rec]
     # insert the data from the first recorded day
     temp_rec.insert(0, temp[0])
