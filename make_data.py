@@ -3,7 +3,47 @@ import numpy as np
 confirmed = pandas.read_csv('time_series_covid19_confirmed_global.csv')
 deaths = pandas.read_csv('time_series_covid19_deaths_global.csv')
 recovered = pandas.read_csv('time_series_covid19_recovered_global.csv')
-#lookup = pandas.read_csv('/home/shaineh/Big_Data/csse_covid_19_data/csse_covid_19_time_series/LookUp_Table.csv')
+
+
+"""
+Rearrange the Canada entries
+"""
+# indexes for canada's confirmed and deaths
+confirmed_idx = confirmed.index[confirmed["Country/Region"]=="Canada"]
+deaths_idx = deaths.index[deaths["Country/Region"]=="Canada"]
+
+'''
+1. canada confirmed handling
+'''
+total_confirmed = confirmed.loc[confirmed_idx].drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1).sum()
+canada_confirmed_line = pandas.DataFrame(total_confirmed)
+
+# create a new confirmed array where you drop all canada entries except one
+confirmed_copy = confirmed.drop((confirmed.index[confirmed["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
+
+# find the index of the only canada entry
+canada_conf_idx = int(confirmed_copy.index[confirmed_copy["Country/Region"]=="Canada"].to_numpy())
+
+# drop the columns that does not hold data
+confirmed_copy = confirmed_copy.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
+# replace canada row with Canada sum
+total_confirmed = pandas.concat([confirmed_copy.iloc[:canada_conf_idx], canada_confirmed_line.transpose(), confirmed_copy.iloc[canada_conf_idx+1:]]).reset_index()
+total_confirmed = total_confirmed.drop(columns=['index'], axis=1)
+
+'''
+2. canada deaths handling
+'''
+
+total_deaths = deaths.loc[deaths_idx].drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1).sum()
+canada_deaths_line = pandas.DataFrame(total_deaths)
+
+deaths_copy = deaths.drop((deaths.index[deaths["Country/Region"]=="Canada"])[1:]).reset_index(drop=True)
+canada_deaths_idx = int(deaths_copy.index[deaths_copy["Country/Region"]=="Canada"].to_numpy())
+
+deaths_copy = deaths_copy.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
+total_deaths = pandas.concat([deaths_copy.iloc[:canada_deaths_idx], canada_deaths_line.transpose(), deaths_copy.iloc[canada_deaths_idx+1:]]).reset_index()
+total_deaths = total_deaths.drop(columns=['index'], axis=1)
+
 
 days = []
 months = []
@@ -26,18 +66,6 @@ Country2 = recovered["Country/Region"].tolist()
 Lat2 = recovered["Lat"].tolist()
 Long2 = recovered["Long"].tolist()
 
-print(len(Country))
-print(len(Country2))
-count = 0
-for i, a in enumerate(Long):
-    if a not in Long2:
-        print(i, ": ",a)
-        print(Country[i])
-        #count += 1
-        if Country[i] == "Canada":
-            count += 1
-print(count)
-
 Country = [ele for ele in Country for i in range(662)]
 Lat = [ele for ele in Lat for i in range(662)]
 Long = [ele for ele in Long for i in range(662)]
@@ -51,13 +79,13 @@ deaths_dates = deaths.drop(columns=["Province/State","Country/Region","Lat","Lon
 recovered_dates = recovered.drop(columns=["Province/State","Country/Region","Lat","Long"], axis=1)
 
 """
-Confirmed section
+#Confirmed section
 """
 
 # list to store the confirmed for each day
 confirmed_each_day_by_country = []
 # for each country
-for index, row in confirmed_dates.iterrows():
+for index, row in total_confirmed.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
@@ -71,13 +99,13 @@ for index, row in confirmed_dates.iterrows():
 confirmed_each_day_by_country =[item for sublist in confirmed_each_day_by_country for item in sublist]
 
 """
-Deaths section
+#Deaths section
 """
 
 # list to store the deaths for each day
 deaths_each_day_by_country = []
 # for each country
-for index, row in deaths_dates.iterrows():
+for index, row in total_deaths.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
@@ -91,11 +119,12 @@ for index, row in deaths_dates.iterrows():
 deaths_each_day_by_country =[item for sublist in deaths_each_day_by_country for item in sublist]
 
 """
-Recovered section
+#Recovered section
 
-NOTE: we have a problem here since recovered file only has 265 countries,
-i think we should be checking for country match at all times
+#NOTE: we have a problem here since recovered file only has 265 countries,
+#i think we should be checking for country match at all times
 """
+
 # list to store the recovered for each day
 recovered_each_day_by_country = []
 # for each country
@@ -109,13 +138,18 @@ for index, row in recovered_dates.iterrows():
     # append to the country list
     recovered_each_day_by_country.append(temp_rec)
 
+
 # flatten the list
 recovered_each_day_by_country =[item for sublist in recovered_each_day_by_country for item in sublist]
 
+
+print("Length of confirmed: ", len(confirmed_each_day_by_country))
+print("Length of deaths: ", len(deaths_each_day_by_country))
+print("Length of recovered: ", len(recovered_each_day_by_country))
+
 col_names = ["Country/Region", "Lat", "Long", "Day", "Month", "Year", "Confirmed", "Deaths"]
-data = np.column_stack((Country,Lat,Long,days,months,year, confirmed_each_day_by_country, deaths_each_day_by_country))
+data = np.column_stack((Country,Lat,Long,days,months,year, confirmed_each_day_by_country, deaths_each_day_by_country, recovered_each_day_by_country))
 data = pandas.DataFrame(data, columns = col_names)
+
 data.to_csv('data.csv')
-
-
 
