@@ -1,5 +1,6 @@
 import pandas
 import numpy as np
+import matplotlib.pyplot as plt
 confirmed = pandas.read_csv('time_series_covid19_confirmed_global.csv')
 deaths = pandas.read_csv('time_series_covid19_deaths_global.csv')
 recovered = pandas.read_csv('time_series_covid19_recovered_global.csv')
@@ -163,3 +164,9 @@ data = pandas.DataFrame(data, columns = col_names)
 
 data.to_csv('data.csv')
 
+data['Confirmed'] = data['Confirmed'].astype('int')
+data['Deaths'] = data['Deaths'].astype('int')
+data['Recovered'] = data['Recovered'].astype('int')
+print(data.dtypes)
+data.plot(kind = 'scatter', x= 'Confirmed', y = 'Deaths', color='red')
+plt.show()
