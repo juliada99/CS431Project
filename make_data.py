@@ -1,6 +1,8 @@
 import pandas
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import axes, pyplot as plt
+import matplotlib
+
 confirmed = pandas.read_csv('time_series_covid19_confirmed_global.csv')
 deaths = pandas.read_csv('time_series_covid19_deaths_global.csv')
 recovered = pandas.read_csv('time_series_covid19_recovered_global.csv')
@@ -169,7 +171,9 @@ data['Deaths'] = data['Deaths'].astype('int')
 data['Recovered'] = data['Recovered'].astype('int')
 print(data.dtypes)
 
-plt.figure(figsize=(100,10))
-plt.bar(data["Country/Region"], data["Deaths"])
+plt.figure(figsize=(15, 35))
+plt.ylabel("Country")
+plt.xlabel("Deaths")
+plt.barh(data["Country/Region"], data["Deaths"])
 
-plt.savefig("plot.png")
+plt.savefig("plot.png", bbox_inches= "tight", dpi = 100)
