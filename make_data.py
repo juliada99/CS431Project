@@ -168,5 +168,8 @@ data['Confirmed'] = data['Confirmed'].astype('int')
 data['Deaths'] = data['Deaths'].astype('int')
 data['Recovered'] = data['Recovered'].astype('int')
 print(data.dtypes)
-data.plot(kind = 'scatter', x= 'Confirmed', y = 'Deaths', color='red')
-plt.show()
+
+plt.figure(figsize=(100,10))
+plt.bar(data["Country/Region"], data["Deaths"])
+
+plt.savefig("plot.png")
