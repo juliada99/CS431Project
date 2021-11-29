@@ -66,7 +66,7 @@ for name, input in inputs.items():
   lookup = layers.StringLookup(vocabulary=np.unique(data_features[name]))
 
   # Convert the indexes into float32 data appropriate for the model.
-  one_hot = layers.CategoryEncoding(max_tokens=lookup.vocab_size())
+  one_hot = layers.CategoryEncoding(num_tokens=lookup.vocabulary_size())
 
   # We created a one-hot vector for each input.
   x = lookup(input)
