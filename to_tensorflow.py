@@ -100,7 +100,7 @@ for features, label in data_ds:
   print(features["Day"])
   print(label.numpy())
   break
-
+"""
 # Shuffle and batch the data.
 data_batches = data_ds.shuffle(len(data_labels)).batch(32)
 
@@ -125,7 +125,7 @@ data_model = data_model(data_preprocessing, inputs)
 # Pass the dataset:
 data_model.fit(data_batches, epochs=5)
 
-
+"""
 
 """
 Calculates global mean value of confirmed, deaths, and recovered for the given date.
@@ -171,5 +171,31 @@ print(median)
 print(std)
 
 def average_between_dates(dataset, start_date, end_date):
-  pass
+  format_str = '%m/%d/%Y' # The format
+  start_datetime_obj = datetime.datetime.strptime(start_date, format_str)
+  end_datetime_obj = datetime.datetime.strptime(end_date, format_str)
+  delta = end_datetime_obj - start_datetime_obj
+  print(delta)
+  if start_datetime_obj >= dataset_start and start_datetime_obj <= dataset_end:
+    date = start_date.split("/")
+    day = int(date[1]) if date[1][0] != 0 else int(date[1][-1])
+    month = int(date[0]) if date[0][0] != 0 else int(date[0][-1])
+    year = int(date[2][-2:])
+    confirmed = []
+    deaths = []
+    recovered = []
+    for features, label in dataset:
+      if features["Day"] == day and features["Month"] == month and features["Year"] == year:
+        deaths.append(features["Deaths"].numpy())
+        recovered.append(features["Recovered"].numpy())
+        confirmed.append(label.numpy())
+    confirmed = np.array(confirmed)
+    deaths = np.array(deaths)
+    recovered = np.array(recovered)
+    print(recovered)
+    means = (confirmed.mean(), deaths.mean(), recovered.mean())
+    medians = (np.median(confirmed), np.median(deaths), np.median(recovered))
+    std = (np.std(confirmed), np.std(deaths), np.std(recovered))
+    return means, medians, std
 
+a, b, c = average_between_dates(data_ds, "1/1/2021", "1/5/2021")

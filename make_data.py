@@ -9,6 +9,11 @@ recovered = pandas.read_csv('time_series_covid19_recovered_global.csv')
 
 n_days = None
 n_countries = None
+
+print(confirmed.head())
+print(deaths.head())
+print(recovered.head())
+
 """
 Rearrange the Canada entries
 """
@@ -163,17 +168,29 @@ print("Length of recovered: ", len(recovered_each_day_by_country))
 col_names = ["Country/Region", "Lat", "Long", "Day", "Month", "Year", "Confirmed", "Deaths", "Recovered"]
 data = np.column_stack((Country,Lat,Long,days,months,year, confirmed_each_day_by_country, deaths_each_day_by_country, recovered_each_day_by_country))
 data = pandas.DataFrame(data, columns = col_names)
-
+print("\n\n")
+print(list(data.columns))
+print("\n\n")
 data.to_csv('data.csv')
+
+data['Year'] = data['Year'].astype('int')
+data['Month'] = data['Month'].astype('int')
+data['Day'] = data['Day'].astype('int')
 
 data['Confirmed'] = data['Confirmed'].astype('int')
 data['Deaths'] = data['Deaths'].astype('int')
 data['Recovered'] = data['Recovered'].astype('int')
-print(data.dtypes)
 
+data_grouped = data.groupby(['Year', 'Month'])[["Confirmed", "Deaths", "Recovered"]].sum()
+print(data_grouped)
+print("\n")
+
+print(data.dtypes)
+"""
 plt.figure(figsize=(15, 35))
 plt.ylabel("Country")
 plt.xlabel("Deaths")
 plt.barh(data["Country/Region"], data["Deaths"])
 
 plt.savefig("plot.png", bbox_inches= "tight", dpi = 100)
+"""
