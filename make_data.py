@@ -184,6 +184,13 @@ with open ("data.csv", "r") as csvfile:
 
 plot_data = pandas.read_csv("cumulative_data.csv")
 plot_data.drop(columns=["Day","Month","Year","Lat","Long"], axis=1, inplace=True)
+plot_data.drop(plot_data.columns[0], axis=1, inplace=True)
+
+active = []
+for index, row in plot_data.iterrows():
+    calc = row["Confirmed"] - row["Deaths"] - row["Recovered"]
+    active.append(calc)
+plot_data["Active"] = active
 
 ax = parallel_coordinates(plot_data, "Country/Region")
 ax.legend().remove()
