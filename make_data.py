@@ -98,44 +98,53 @@ recovered_dates = recovered.drop(columns=["Province/State","Country/Region","Lat
 
 # list to store the confirmed for each day
 confirmed_each_day_by_country = []
+confirmed_cumulative = []
 # for each country
 for index, row in total_confirmed.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    #temp_con = [t - s for s, t in zip(temp, temp[1:])]
+    temp_con = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_con = [0 if x < 0 else x for x in temp[1:]]
+    temp_con = [0 if x < 0 else x for x in temp_con]
     # insert the data from the first recorded day
     temp_con.insert(0, temp[0])
     # append to the country list
     confirmed_each_day_by_country.append(temp_con)
 
+    temp_con = [x for x in temp[1:]]
+    temp_con.insert(0, temp[0])
+    confirmed_cumulative.append(temp_con)
 # flatten the list
 confirmed_each_day_by_country =[item for sublist in confirmed_each_day_by_country for item in sublist]
-
+confirmed_cumulative = [item for sublist in confirmed_cumulative for item in sublist]
 """
 #Deaths section
 """
 
 # list to store the deaths for each day
 deaths_each_day_by_country = []
+deaths_cumulative = []
 # for each country
 for index, row in total_deaths.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    #temp_deaths = [t - s for s, t in zip(temp, temp[1:])]
+    temp_deaths = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_deaths = [0 if x < 0 else x for x in temp[1:]]
+    temp_deaths = [0 if x < 0 else x for x in temp_deaths]
     # insert the data from the first recorded day
     temp_deaths.insert(0, temp[0])
     # append to the country list
     deaths_each_day_by_country.append(temp_deaths)
 
+    temp_deaths = [x for x in temp[1:]]
+    temp_deaths.insert(0, temp[0])
+    deaths_cumulative.append(temp_deaths)
+
 # flatten the list
 deaths_each_day_by_country =[item for sublist in deaths_each_day_by_country for item in sublist]
-
+deaths_cumulative = [item for sublist in deaths_cumulative for item in sublist]
 """
 #Recovered section
 
@@ -145,23 +154,27 @@ deaths_each_day_by_country =[item for sublist in deaths_each_day_by_country for 
 
 # list to store the recovered for each day
 recovered_each_day_by_country = []
+recovered_cumulative = []
 # for each country
 for index, row in recovered_dates.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    #temp_rec = [t - s for s, t in zip(temp, temp[1:])]
+    temp_rec = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_rec = [0 if x < 0 else x for x in temp[1:]]
+    temp_rec = [0 if x < 0 else x for x in temp_rec]
     # insert the data from the first recorded day
     temp_rec.insert(0, temp[0])
     # append to the country list
     recovered_each_day_by_country.append(temp_rec)
 
+    temp_rec = [x for x in temp[1:]]
+    temp_rec.insert(0, temp[0])
+    recovered_cumulative.append(temp_rec)
 
 # flatten the list
 recovered_each_day_by_country =[item for sublist in recovered_each_day_by_country for item in sublist]
-
+recovered_cumulative = [item for sublist in recovered_cumulative for item in sublist]
 
 print("Length of confirmed: ", len(confirmed_each_day_by_country))
 print("Length of deaths: ", len(deaths_each_day_by_country))
@@ -200,7 +213,10 @@ plt.savefig("plot.png", bbox_inches= "tight", dpi = 100)
 # data['Deaths'] = data['Deaths'].astype('int')
 # data['Recovered'] = data['Recovered'].astype('int')
 
-with open ("data.csv", "r") as csvfile:
+data = np.column_stack((Country,Lat,Long,days,months,year, confirmed_cumulative, deaths_cumulative, recovered_cumulative))
+data = pandas.DataFrame(data, columns = col_names)
+data.to_csv("cData.csv")
+with open ("cData.csv", "r") as csvfile:
     with open ("cumulative_data.csv", "w") as writefile:
         reader = csv.reader(csvfile)
         writer = csv.writer(writefile)
