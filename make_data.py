@@ -1,7 +1,9 @@
 import pandas
+from pandas.plotting import parallel_coordinates
 import numpy as np
 from matplotlib import axes, pyplot as plt
 import matplotlib
+import csv
 
 confirmed = pandas.read_csv('time_series_covid19_confirmed_global.csv')
 deaths = pandas.read_csv('time_series_covid19_deaths_global.csv')
@@ -101,9 +103,9 @@ for index, row in total_confirmed.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    temp_con = [t - s for s, t in zip(temp, temp[1:])]
+    #temp_con = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_con = [0 if x < 0 else x for x in temp_con]
+    temp_con = [0 if x < 0 else x for x in temp[1:]]
     # insert the data from the first recorded day
     temp_con.insert(0, temp[0])
     # append to the country list
@@ -123,9 +125,9 @@ for index, row in total_deaths.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    temp_deaths = [t - s for s, t in zip(temp, temp[1:])]
+    #temp_deaths = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_deaths = [0 if x < 0 else x for x in temp_deaths]
+    temp_deaths = [0 if x < 0 else x for x in temp[1:]]
     # insert the data from the first recorded day
     temp_deaths.insert(0, temp[0])
     # append to the country list
@@ -148,9 +150,9 @@ for index, row in recovered_dates.iterrows():
     # convert to list
     temp = row.tolist()
     # calculate differences 
-    temp_rec = [t - s for s, t in zip(temp, temp[1:])]
+    #temp_rec = [t - s for s, t in zip(temp, temp[1:])]
     # set negative values to zero
-    temp_rec = [0 if x < 0 else x for x in temp_rec]
+    temp_rec = [0 if x < 0 else x for x in temp[1:]]
     # insert the data from the first recorded day
     temp_rec.insert(0, temp[0])
     # append to the country list
@@ -194,3 +196,33 @@ plt.barh(data["Country/Region"], data["Deaths"])
 
 plt.savefig("plot.png", bbox_inches= "tight", dpi = 100)
 """
+# data['Confirmed'] = data['Confirmed'].astype('int')
+# data['Deaths'] = data['Deaths'].astype('int')
+# data['Recovered'] = data['Recovered'].astype('int')
+
+with open ("data.csv", "r") as csvfile:
+    with open ("cumulative_data.csv", "w") as writefile:
+        reader = csv.reader(csvfile)
+        writer = csv.writer(writefile)
+        writer.writerow(next(reader))
+        for line in reader:
+            rowData = line
+            if int(rowData[0]) % 661 == 0 and int(rowData[0]) != 0:
+                writer.writerow(rowData)
+
+plot_data = pandas.read_csv("cumulative_data.csv")
+plot_data.drop(columns=["Day","Month","Year","Lat","Long"], axis=1, inplace=True)
+plot_data.drop(plot_data.columns[0], axis=1, inplace=True)
+
+active = []
+for index, row in plot_data.iterrows():
+    calc = row["Confirmed"] - row["Deaths"] - row["Recovered"]
+    active.append(calc)
+plot_data["Active"] = active
+
+plot_data = plot_data[["Country/Region","Confirmed", "Active", "Recovered", "Deaths"]]
+ax = parallel_coordinates(plot_data, "Country/Region")
+ax.legend().remove()
+
+
+plt.savefig("plot.png", bbox_inches= "tight")
