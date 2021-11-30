@@ -192,6 +192,7 @@ for index, row in plot_data.iterrows():
     active.append(calc)
 plot_data["Active"] = active
 
+plot_data = plot_data[["Country/Region","Confirmed", "Active", "Recovered", "Deaths"]]
 ax = parallel_coordinates(plot_data, "Country/Region")
 ax.legend().remove()
 
