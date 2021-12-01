@@ -246,7 +246,11 @@ ax.legend().remove()
 plt.savefig("plot.png", bbox_inches= "tight")
 
 
-ax1 = data_grouped.plot.line(x="Month/Year", y="Confirmed", figsize=(15, 7), color="red")
+ax1 = data_grouped.plot.line(x="Month/Year", y="Confirmed", figsize=(15, 7), color="red", title="Confirmed COVID-19 Cases From 1/20-11/21")
+ax1.set_xticks(range(len(dates)))
+ax1.set_xticklabels(dates)
 plt.savefig("line_confirmed.png", bbox_inches="tight")
-ax2 = data_grouped.plot.line(x="Month/Year", y="Deaths", figsize=(15,7), color="blue")
+ax2 = data_grouped.plot.line(x="Month/Year", y="Deaths", figsize=(15,7), color="blue", title="Confirmed COVID-19 Deaths from 1/20-11/21")
+ax2.set_xticks(range(len(dates)))
+ax2.set_xticklabels(dates)
 plt.savefig("line_deaths.png", bbox_inches="tight")
