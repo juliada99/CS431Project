@@ -201,6 +201,9 @@ print(data_grouped)
 print("\n")
 
 print(data.dtypes)
+
+dates = ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20","1/21", "2/21", "3/21", "4/21", "5/21", "6/21", "7/21", "8/21", "9/21", "10/21", "11/21"]
+data_grouped["Month/Year"] = dates
 """
 plt.figure(figsize=(15, 35))
 plt.ylabel("Country")
@@ -240,5 +243,10 @@ plot_data = plot_data[["Country/Region","Confirmed", "Active", "Recovered", "Dea
 ax = parallel_coordinates(plot_data, "Country/Region")
 ax.legend().remove()
 
-
 plt.savefig("plot.png", bbox_inches= "tight")
+
+
+ax1 = data_grouped.plot.line(x="Month/Year", y="Confirmed", figsize=(15, 7), color="red")
+plt.savefig("line_confirmed.png", bbox_inches="tight")
+ax2 = data_grouped.plot.line(x="Month/Year", y="Deaths", figsize=(15,7), color="blue")
+plt.savefig("line_deaths.png", bbox_inches="tight")
